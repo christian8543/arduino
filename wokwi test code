@@ -1,0 +1,33 @@
+const int sensorPin = 2;   // PIR Motion Sensor connected to digital pin 2
+const int relayPin = 7;    // Relay Module connected to digital pin 7
+const int lightLED = 13;   // LED to simulate light/motor (optional for testing)
+
+void setup() {
+  pinMode(sensorPin, INPUT);   // PIR sensor as input
+  pinMode(relayPin, OUTPUT);   // Relay module as output
+  pinMode(lightLED, OUTPUT);   // Simulated light/motor (LED)
+
+  digitalWrite(relayPin, HIGH); // Ensure relay is OFF at startup
+  digitalWrite(lightLED, LOW);  // Ensure LED is OFF at startup
+
+  Serial.begin(9600);
+}
+
+void loop() {
+  int motionState = digitalRead(sensorPin); // Read motion sensor state
+
+  Serial.print("Motion Sensor Status: ");
+  Serial.println(motionState);
+
+  if (motionState == HIGH) {  // Motion detected
+    digitalWrite(relayPin, LOW);  // Turn ON relay (active LOW)
+    digitalWrite(lightLED, HIGH); // Turn ON LED
+    Serial.println("Motion detected! Light ON.");
+  } else {
+    digitalWrite(relayPin, HIGH); // Turn OFF relay
+    digitalWrite(lightLED, LOW);  // Turn OFF LED
+    Serial.println("No motion. Light OFF.");
+  }
+
+  delay(500); // Optional debounce delay
+}

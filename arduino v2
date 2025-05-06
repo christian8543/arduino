@@ -1,0 +1,53 @@
+#include <ESP8266WiFi.h>
+
+const char* ssid = "MyHomeWiFi";
+const char* password = "supersecurepassword";
+
+const char* host = "script.google.com";
+
+const int sensorPin = D2;   // PIR motion sensor connected to digital pin D2
+const int lightPin = D7;    // Light (relay or LED) connected to digital pin D7
+
+void setup() {
+  pinMode(sensorPin, INPUT);
+  pinMode(lightPin, OUTPUT);
+  digitalWrite(lightPin, LOW); // Ensure light is OFF at startup
+
+  Serial.begin(115200);
+
+  WiFi.begin(ssid, password);
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+  Serial.println("WiFi connected.");
+}
+
+void loop() {
+  int motionState = digitalRead(sensorPin);
+  bool motionDetected = false;
+
+  if (motionState == HIGH) {
+    digitalWrite(lightPin, HIGH);  // Turn ON light
+    delay(5000);                   // Keep light on for 5 seconds
+    digitalWrite(lightPin, LOW);   // Turn OFF light
+    motionDetected = true;
+  }
+
+  WiFiClient client;
+  const int httpPort = 80;
+
+  if (client.connect(host, httpPort)) {
+    String url = "/macros/s/AKfycbxA8U29D7EXAMPLE1234567890abcdef/exec?motion=";
+    url += String(motionDetected ? "1" : "0");
+
+    client.print(String("GET ") + url + " HTTP/1.1\r\n" +
+                 "Host: " + host + "\r\n" +
+                 "Connection: close\r\n\r\n");
+    delay(100);
+  }
+
+  client.stop();
+
+  delay(900000); // Wait 15 minutes before next check
+}

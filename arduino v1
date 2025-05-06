@@ -1,0 +1,27 @@
+const int sensorPin = 2;    // Digital input from PIR motion sensor
+const int pumpPin = 7;      // Output to relay controlling the pump
+
+void setup() {
+  pinMode(sensorPin, INPUT);   // PIR motion sensor as input
+  pinMode(pumpPin, OUTPUT);    // Pump (relay) as output
+
+  digitalWrite(pumpPin, LOW);  // Ensure pump is OFF at startup
+  Serial.begin(9600);
+}
+
+void loop() {
+  int motionState = digitalRead(sensorPin);  // Read PIR sensor
+
+  Serial.print("Motion Detected: ");
+  Serial.println(motionState);
+
+  if (motionState == HIGH) {
+    digitalWrite(pumpPin, HIGH);  // Turn ON pump
+    Serial.println("Motion detected! Pump ON.");
+  } else {
+    digitalWrite(pumpPin, LOW);   // Turn OFF pump
+    Serial.println("No motion. Pump OFF.");
+  }
+
+  delay(1000); // Small delay to stabilize reading
+}
